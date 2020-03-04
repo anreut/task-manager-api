@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-var colors = require('colors');
+const colors = require('colors');
 const taskRoutes = require('./routes/tasks');
 
 // import environment variables from .env
@@ -33,4 +33,6 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => app.listen(process.env.PORT || 8080))
-  .catch(error => console.log(colors.red('💩 💩 💩 MONGODB ERROR'), error));
+  .catch(error =>
+    console.log(colors.red('💩 💩 💩 MONGODB ERROR'), error),
+  );
