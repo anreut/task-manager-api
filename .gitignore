@@ -1,0 +1,9 @@
+# ignore node dependency directories
+node_modules/
+
+# ignore IDE files
+.vscode
+.idea
+
+# ignore environment variables
+.env
