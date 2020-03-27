@@ -4,14 +4,14 @@ const Schema = mongoose.Schema;
 const taskSchema = new Schema({
   title: {
     type: String,
-    required: true,
+    required: [true, 'Title is required'],
   },
   dueDate: {
     type: Boolean,
     required: true,
   },
   date: {
-    type: Number,
+    type: Date,
     required: function() {
       return this.dueDate;
     },
@@ -21,18 +21,19 @@ const taskSchema = new Schema({
     required: true,
   },
   repeatDays: {
-    type: Array,
-    required: function() {
-      return this.repeat;
-    },
+    type: [String],
+    required: false,
+    // required: function() {
+    //   return this.repeat;
+    // },
   },
   tags: {
-    type: Array,
+    type: [String],
     required: false,
   },
   priority: {
     type: String,
-    required: true,
+    required: [true, 'Priority is required'],
     default: 'low',
   },
 });

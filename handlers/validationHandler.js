@@ -1,5 +1,5 @@
 const { check } = require('express-validator');
-const { validateRepeatDays, validateDate } = require('../utils');
+const { validateRepeatDays } = require('../utils');
 
 exports.task = () => [
   check('title')
@@ -7,9 +7,6 @@ exports.task = () => [
     .notEmpty()
     .trim(),
   check('dueDate').isBoolean(),
-  check('date')
-    .if((_, { req }) => req.body.dueDate)
-    .custom(validateDate),
   check('repeat').isBoolean(),
   check('repeatDays')
     .if((_, { req }) => req.body.repeat)

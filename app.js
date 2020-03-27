@@ -31,8 +31,13 @@ mongoose
   .connect(process.env.DB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    retryWrites: true,
+    w: 'majority',
   })
-  .then(() => app.listen(process.env.PORT || 8080))
+  .then(() => {
+    app.listen(process.env.PORT || 8080);
+    console.log(colors.green('CONNECTED TO MONGODB'));
+  })
   .catch(error =>
     console.log(colors.red('💩 💩 💩 MONGODB ERROR'), error),
   );

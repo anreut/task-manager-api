@@ -42,25 +42,30 @@ exports.postTask = (req, res, next) => {
     priority,
   } = req.body;
 
-  const task = new Task({
+  const newTask = new Task({
     title,
     dueDate,
     repeat,
     tags,
     priority,
   });
+  console.log('NEW_TASK', newTask);
 
   if (dueDate) {
-    Object.assign(task, { date });
-  }
-
-  if (repeat) {
-    Object.assign(task, { repeatDays });
+    newTask.date = date;
   } else {
-    Object.assign(task, { repeatDays: undefined });
+    newTask.date = undefined;
   }
 
-  return task
+  // HACK
+  // for some reason it always returns repeatDays: []
+  if (repeat) {
+    newTask.repeatDays = repeatDays;
+  } else {
+    newTask.repeatDays = undefined;
+  }
+
+  return newTask
     .save()
     .then(result =>
       res.status(201).json({
@@ -101,34 +106,38 @@ exports.updateTask = (req, res, next) => {
     priority,
   } = req.body;
 
-  return Task.findById(req.params.id)
-    .then(task => {
-      const updatedTask = Object.assign(task, {
+  const unsetFields = [];
+  // if dueDate = false remove `date` field
+  if (!dueDate) {
+    unsetFields.push('date');
+  }
+  // if repeat = false remove `repeatDays` field
+  if (!repeat) {
+    unsetFields.push('repeatDays');
+  }
+
+  const aggregation = [
+    {
+      $set: {
         title,
         dueDate,
+        date,
         repeat,
+        repeatDays,
         tags,
         priority,
-      });
+      },
+    },
+  ];
 
-      if (repeat) {
-        updatedTask.repeatDays = repeatDays;
-      } else {
-        updatedTask.repeatDays = undefined;
-      }
+  if (unsetFields.length !== 0) {
+    aggregation.push({ $unset: unsetFields });
+  }
 
-      if (dueDate) {
-        updatedTask.date = date;
-      } else {
-        updatedTask.date = undefined;
-      }
-
-      return updatedTask.save();
-    })
-    .then(result => {
+  return Task.updateOne({ _id: req.params.id }, aggregation)
+    .then(() => {
       res.status(200).json({
-        message: '👌 The task was updated successfully',
-        task: result,
+        message: '👌 The task was successfully updated',
       });
     })
     .catch(err => {
@@ -149,7 +158,7 @@ exports.deleteTask = (req, res, next) => {
   })
     .then(result => {
       res.status(200).json({
-        message: '👌 The task was deleted successfully',
+        message: '👌 The task was successfully deleted',
         task: result,
       });
     })

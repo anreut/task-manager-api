@@ -14,10 +14,3 @@ exports.validateRepeatDays = days => {
   }
   return false;
 };
-
-exports.validateDate = value => {
-  if (typeof value === 'number') {
-    return new Date(value).getTime() > 0;
-  }
-  return false;
-};
