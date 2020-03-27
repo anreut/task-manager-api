@@ -22,10 +22,9 @@ const taskSchema = new Schema({
   },
   repeatDays: {
     type: [String],
-    required: false,
-    // required: function() {
-    //   return this.repeat;
-    // },
+    required: function() {
+      return this.repeat;
+    },
   },
   tags: {
     type: [String],
