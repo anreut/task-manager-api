@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const colors = require('colors');
 const taskRoutes = require('./routes/tasks');
+const authRoutes = require('./routes/auth');
 
 // import environment variables from .env
 require('dotenv').config();
@@ -18,7 +19,7 @@ app.use((_, res, next) => {
   );
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'Content-Type, Authorization',
+    'Content-Type, x-token, x-refresh-token',
   );
   next();
 });
@@ -26,10 +27,12 @@ app.use((_, res, next) => {
 app.use(bodyParser.json());
 
 app.use('/api', taskRoutes);
+app.use('/api/auth', authRoutes);
 
 mongoose
   .connect(process.env.DB_URI, {
     useNewUrlParser: true,
+    useCreateIndex: true,
     useUnifiedTopology: true,
     retryWrites: true,
     w: 'majority',

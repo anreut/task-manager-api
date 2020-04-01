@@ -1,11 +1,12 @@
 const { validationResult } = require('express-validator');
 const Task = require('../models/task');
+const User = require('../models/user');
 
 /**
  * GET TASKS
  */
-exports.getTasks = (_, res, next) => {
-  Task.find()
+exports.getTasks = (req, res, next) => {
+  Task.find({ user: req.id }, '-user')
     .then(tasks => {
       res.status(200).json({ tasks });
     })
@@ -48,8 +49,8 @@ exports.postTask = (req, res, next) => {
     repeat,
     tags,
     priority,
+    user: req.id,
   });
-  console.log('NEW_TASK', newTask);
 
   if (dueDate) {
     newTask.date = date;
@@ -67,12 +68,20 @@ exports.postTask = (req, res, next) => {
 
   return newTask
     .save()
-    .then(result =>
+    .then(() => {
+      return User.findById(req.id);
+    })
+    .then(user => {
+      user.tasks.push(newTask);
+      // save user.tasks to DB
+      return user.save();
+    })
+    .then(() => {
       res.status(201).json({
         message: '👌 New task is created successfully',
-        task: result,
-      }),
-    )
+        task: newTask,
+      });
+    })
     .catch(err => {
       res.status(412).json({
         message: '💩 Oops! New task creation failed',
@@ -156,6 +165,15 @@ exports.deleteTask = (req, res, next) => {
   return Task.findByIdAndRemove(req.params.id, {
     useFindAndModify: false,
   })
+    .then(() => {
+      // find user with with task
+      return User.findById(req.id);
+    })
+    .then(user => {
+      // delete task id by User doc
+      user.tasks.pull(req.params.id);
+      return user.save();
+    })
     .then(result => {
       res.status(200).json({
         message: '👌 The task was successfully deleted',

@@ -1,6 +1,7 @@
 const express = require('express');
 const tasksController = require('../controllers/tasks');
-const validationHandler = require('../handlers/validationHandler');
+const validationHandler = require('../middleware/validationHandler');
+const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ const router = express.Router();
  * GET
  * /api/tasks
  */
-router.get('/tasks', tasksController.getTasks);
+router.get('/tasks', isAuth, tasksController.getTasks);
 
 /**
  * POST
@@ -16,6 +17,7 @@ router.get('/tasks', tasksController.getTasks);
  */
 router.post(
   '/task',
+  isAuth,
   validationHandler.task(),
   tasksController.postTask,
 );
@@ -26,6 +28,7 @@ router.post(
  */
 router.put(
   '/task/:id',
+  isAuth,
   validationHandler.task(),
   tasksController.updateTask,
 );
@@ -34,6 +37,6 @@ router.put(
  * DELETE
  * /api/task/:id
  */
-router.delete('/task/:id', tasksController.deleteTask);
+router.delete('/task/:id', isAuth, tasksController.deleteTask);
 
 module.exports = router;
