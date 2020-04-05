@@ -6,16 +6,15 @@ const User = require('../models/user');
  * GET TASKS
  */
 exports.getTasks = (req, res, next) => {
-  Task.find({ user: req.id }, '-user')
-    .then(tasks => {
+  Task.find({ user: req.id }, '-user -__v')
+    .then((tasks) => {
       res.status(200).json({ tasks });
     })
-    .catch(err => {
+    .catch(() => {
       res.status(412).json({
-        message: '💩 Oops! Cannot get tasks',
-        error: err,
+        errors: [{ msg: 'Cannot get tasks' }],
       });
-      next(err);
+      next();
     });
 };
 
@@ -27,10 +26,8 @@ exports.postTask = (req, res, next) => {
   // if data is invalid
   if (!errors.isEmpty()) {
     res.status(422).json({
-      message: '💩 Entered data is invalid',
-      errors,
+      errors: errors.array(),
     });
-    throw new Error('Entered data is invalid');
   }
 
   const {
@@ -71,23 +68,22 @@ exports.postTask = (req, res, next) => {
     .then(() => {
       return User.findById(req.id);
     })
-    .then(user => {
+    .then((user) => {
       user.tasks.push(newTask);
       // save user.tasks to DB
       return user.save();
     })
     .then(() => {
       res.status(201).json({
-        message: '👌 New task is created successfully',
+        msg: '👌 New task is created successfully',
         task: newTask,
       });
     })
-    .catch(err => {
+    .catch(() => {
       res.status(412).json({
-        message: '💩 Oops! New task creation failed',
-        error: err,
+        errors: [{ msg: 'New task creation failed' }],
       });
-      next(err);
+      next();
     });
 };
 
@@ -99,10 +95,8 @@ exports.updateTask = (req, res, next) => {
   // if data is invalid
   if (!errors.isEmpty()) {
     res.status(422).json({
-      message: '💩 Entered data is invalid',
-      errors,
+      errors: errors.array(),
     });
-    throw new Error('Entered data is invalid');
   }
 
   const {
@@ -146,15 +140,14 @@ exports.updateTask = (req, res, next) => {
   return Task.updateOne({ _id: req.params.id }, aggregation)
     .then(() => {
       res.status(200).json({
-        message: '👌 The task was successfully updated',
+        msg: '👌 The task was successfully updated',
       });
     })
-    .catch(err => {
+    .catch(() => {
       res.status(412).json({
-        message: '💩 Oops! The task update failed',
-        error: err,
+        errors: [{ msg: 'The task update failed' }],
       });
-      next(err);
+      next();
     });
 };
 
@@ -169,22 +162,21 @@ exports.deleteTask = (req, res, next) => {
       // find user with with task
       return User.findById(req.id);
     })
-    .then(user => {
+    .then((user) => {
       // delete task id by User doc
       user.tasks.pull(req.params.id);
       return user.save();
     })
-    .then(result => {
+    .then((result) => {
       res.status(200).json({
-        message: '👌 The task was successfully deleted',
+        msg: '👌 The task was successfully deleted',
         task: result,
       });
     })
-    .catch(err => {
+    .catch(() => {
       res.status(412).json({
-        message: '💩 Oops! Unable to delete task',
-        error: err,
+        errors: [{ msg: 'Unable to delete task' }],
       });
-      next(err);
+      next();
     });
 };

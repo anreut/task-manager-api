@@ -21,7 +21,9 @@ exports.getUser = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(400).json({ message: 'Authentication failed' });
+    res
+      .status(400)
+      .json({ errors: [{ msg: 'Authentication failed' }] });
   }
 };
 
@@ -33,10 +35,8 @@ exports.signup = async (req, res) => {
   // if data is invalid
   if (!errors.isEmpty()) {
     res.status(422).json({
-      message: '💩 Entered data is invalid',
       errors: errors.array(),
     });
-    throw new Error('Entered data is invalid');
   }
 
   const { name, email, password } = req.body;
@@ -45,7 +45,9 @@ exports.signup = async (req, res) => {
     // check if user already exists
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res
+        .status(400)
+        .json({ errors: [{ msg: 'User already exists' }] });
     }
     // encrypt password
     const hashedPsw = await bcrypt.hash(password, 12);
@@ -83,7 +85,7 @@ exports.signup = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).send('User registration failed');
+    res.status(500).json({ errors: [{ msg: 'User signup failed' }] });
   }
 };
 
@@ -97,7 +99,9 @@ exports.login = async (req, res) => {
     // check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).send('User does not exist');
+      return res.status(400).json({
+        errors: [{ msg: 'User does not exist' }],
+      });
     }
 
     // compare password
@@ -106,7 +110,9 @@ exports.login = async (req, res) => {
       user.password,
     );
     if (!isPassCorrect) {
-      return res.status(400).send('Incorrect password');
+      return res
+        .status(400)
+        .json({ errors: [{ msg: 'Incorrect password' }] });
     }
 
     // generate tokens
@@ -134,6 +140,8 @@ exports.login = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).send('Authentication failed');
+    res
+      .status(500)
+      .json({ errors: [{ msg: 'Authentication failed' }] });
   }
 };

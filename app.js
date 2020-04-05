@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const colors = require('colors');
 const taskRoutes = require('./routes/tasks');
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
 
 // import environment variables from .env
 require('dotenv').config();
@@ -28,6 +29,7 @@ app.use(bodyParser.json());
 
 app.use('/api', taskRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 
 mongoose
   .connect(process.env.DB_URI, {
@@ -41,6 +43,6 @@ mongoose
     app.listen(process.env.PORT || 8080);
     console.log(colors.green('CONNECTED TO MONGODB'));
   })
-  .catch(error =>
+  .catch((error) =>
     console.log(colors.red('💩 💩 💩 MONGODB ERROR'), error),
   );
