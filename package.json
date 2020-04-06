@@ -7,6 +7,9 @@
     "start": "node app.js",
     "server": "nodemon app.js"
   },
+  "engines": {
+    "node": "12.16.1"
+  },
   "author": "Anastasia Reut",
   "license": "ISC",
   "dependencies": {
